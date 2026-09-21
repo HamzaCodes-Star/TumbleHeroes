@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environment/obstacle_course.png" id="1_albedo"]
+[ext_resource type="Texture2D" path="res://assets/environment/obstacle_course_normal.png" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/environment/obstacle_course_roughness.png" id="3_roughness"]
+[ext_resource type="Texture2D" path="res://assets/environment/obstacle_course_metallic.png" id="4_metallic"]
+
+[resource]
+albedo_texture = ExtResource("1_albedo")
+roughness = 0.8
+roughness_texture = ExtResource("3_roughness")
+metallic = 0.15
+metallic_texture = ExtResource("4_metallic")
+normal_enabled = true
+normal_scale = 1.0
+normal_texture = ExtResource("2_normal")
