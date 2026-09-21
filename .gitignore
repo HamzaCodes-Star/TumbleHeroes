@@ -1,0 +1,7 @@
+# Godot 4 gitignore
+.godot/
+build/
+*.apk
+*.aab
+.DS_Store
+*.tmp

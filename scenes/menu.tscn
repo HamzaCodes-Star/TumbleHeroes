@@ -1,0 +1,280 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/menu.gd" id="1_menu"]
+[ext_resource type="Script" path="res://scripts/character_visuals.gd" id="2_visuals"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Podium"]
+albedo_color = Color(1, 0.78, 0.2, 1)
+metallic = 0.6
+roughness = 0.25
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_podium"]
+material = SubResource("Mat_Podium")
+top_radius = 1.1
+bottom_radius = 1.2
+height = 0.35
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.12, 0.16, 0.26, 0.85)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.3, 0.7, 0.95, 0.6)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.04, 0.05, 0.1, 0.5)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_play_btn"]
+bg_color = Color(0.2, 0.85, 0.35, 1)
+border_width_bottom = 6
+border_color = Color(0.12, 0.6, 0.22, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0.15, 0.75, 0.3, 0.4)
+shadow_size = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_pill"]
+bg_color = Color(0.22, 0.28, 0.42, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.4, 0.5, 0.7, 0.8)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.42, 0.72, 1)
+
+[node name="TitleBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 20.0
+offset_right = 350.0
+offset_bottom = 110.0
+grow_horizontal = 2
+theme_override_constants/separation = -2
+
+[node name="Title" type="Label" parent="TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.3, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.15, 0.35, 0.9)
+theme_override_constants/shadow_offset_x = 4
+theme_override_constants/shadow_offset_y = 5
+theme_override_font_sizes/font_size = 50
+text = "STUMBLE GUYS 3D"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitleBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 1, 0.9)
+theme_override_colors/font_shadow_color = Color(0.05, 0.1, 0.25, 0.6)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "KNOCKOUT PARTY RUNNER"
+horizontal_alignment = 1
+
+[node name="CharacterStage" type="SubViewportContainer" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 70.0
+offset_top = -240.0
+offset_right = 570.0
+offset_bottom = 280.0
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="CharacterStage"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(500, 520)
+render_target_update_mode = 4
+
+[node name="World3D" type="Node3D" parent="CharacterStage/SubViewport"]
+
+[node name="Camera3D" type="Camera3D" parent="CharacterStage/SubViewport/World3D"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 1.05, 2.3)
+fov = 48.0
+
+[node name="KeyLight" type="DirectionalLight3D" parent="CharacterStage/SubViewport/World3D"]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 2, 5, 2)
+light_energy = 1.4
+
+[node name="FillLight" type="DirectionalLight3D" parent="CharacterStage/SubViewport/World3D"]
+transform = Transform3D(-0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, -2, 2, -2)
+light_color = Color(0.8, 0.85, 1, 1)
+light_energy = 0.7
+
+[node name="Podium" type="MeshInstance3D" parent="CharacterStage/SubViewport/World3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
+mesh = SubResource("CylinderMesh_podium")
+
+[node name="CharacterPreview" type="Node3D" parent="CharacterStage/SubViewport/World3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+script = ExtResource("2_visuals")
+
+[node name="RightPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -620.0
+offset_top = -220.0
+offset_right = -70.0
+offset_bottom = 290.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+
+[node name="VBox" type="VBoxContainer" parent="RightPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = -28.0
+offset_bottom = -22.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="SkinHeader" type="Label" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.45, 1)
+theme_override_font_sizes/font_size = 18
+text = "SELECT YOUR FLUFFY STUMBLER:"
+horizontal_alignment = 1
+
+[node name="SkinPicker" type="HBoxContainer" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="PrevSkinBtn" type="Button" parent="RightPanel/VBox/SkinPicker"]
+custom_minimum_size = Vector2(56, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "◀"
+
+[node name="SkinNameBox" type="Panel" parent="RightPanel/VBox/SkinPicker"]
+custom_minimum_size = Vector2(280, 50)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btn_pill")
+
+[node name="SkinNameLabel" type="Label" parent="RightPanel/VBox/SkinPicker/SkinNameBox"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "Fluffy Teddy 🧸"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextSkinBtn" type="Button" parent="RightPanel/VBox/SkinPicker"]
+custom_minimum_size = Vector2(56, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "▶"
+
+[node name="HSeparator" type="HSeparator" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LevelHeader" type="Label" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "CHOOSE COURSE / ARENA:"
+horizontal_alignment = 1
+
+[node name="LevelSelector" type="HBoxContainer" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="SkyButton" type="Button" parent="RightPanel/VBox/LevelSelector"]
+custom_minimum_size = Vector2(150, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "🌤️ Sky Whirl"
+
+[node name="VolcanoButton" type="Button" parent="RightPanel/VBox/LevelSelector"]
+custom_minimum_size = Vector2(150, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "🌋 Volcano"
+
+[node name="IceButton" type="Button" parent="RightPanel/VBox/LevelSelector"]
+custom_minimum_size = Vector2(150, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "❄️ Glacier"
+
+[node name="Spacer" type="Control" parent="RightPanel/VBox"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="RightPanel/VBox"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.05, 0.35, 0.15, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 32
+theme_override_styles/normal = SubResource("StyleBoxFlat_play_btn")
+text = "▶ PLAY NOW"
+
+[connection signal="pressed" from="RightPanel/VBox/SkinPicker/PrevSkinBtn" to="." method="_on_prev_color_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/SkinPicker/NextSkinBtn" to="." method="_on_next_color_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/LevelSelector/SkyButton" to="." method="_on_sky_button_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/LevelSelector/VolcanoButton" to="." method="_on_volcano_button_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/LevelSelector/IceButton" to="." method="_on_ice_button_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/PlayButton" to="." method="_on_play_button_pressed"]
