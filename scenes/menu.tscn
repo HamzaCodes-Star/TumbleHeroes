@@ -88,7 +88,7 @@ theme_override_colors/font_shadow_color = Color(0.05, 0.15, 0.35, 0.9)
 theme_override_constants/shadow_offset_x = 4
 theme_override_constants/shadow_offset_y = 5
 theme_override_font_sizes/font_size = 50
-text = "STUMBLE GUYS 3D"
+text = "TUMBLE HEROES 3D"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="TitleBox"]
@@ -139,7 +139,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
 mesh = SubResource("CylinderMesh_podium")
 
 [node name="CharacterPreview" type="Node3D" parent="CharacterStage/SubViewport/World3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0.05, 0)
 script = ExtResource("2_visuals")
 
 [node name="RightPanel" type="Panel" parent="."]
@@ -149,10 +149,10 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -620.0
-offset_top = -220.0
-offset_right = -70.0
-offset_bottom = 290.0
+offset_left = -640.0
+offset_top = -250.0
+offset_right = -60.0
+offset_bottom = 320.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_card")
@@ -217,6 +217,58 @@ theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
 text = "▶"
 
+[node name="EmoteHeader" type="Label" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.65, 0.85, 1)
+theme_override_font_sizes/font_size = 16
+text = "EXPRESSIVE EMOTES & TAUNTS:"
+horizontal_alignment = 1
+
+[node name="EmoteBar" type="HBoxContainer" parent="RightPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="WaveBtn" type="Button" parent="RightPanel/VBox/EmoteBar"]
+custom_minimum_size = Vector2(80, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "👋 Wave"
+
+[node name="DanceBtn" type="Button" parent="RightPanel/VBox/EmoteBar"]
+custom_minimum_size = Vector2(80, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "🕺 Dance"
+
+[node name="CheerBtn" type="Button" parent="RightPanel/VBox/EmoteBar"]
+custom_minimum_size = Vector2(80, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "🎉 Cheer"
+
+[node name="SpinBtn" type="Button" parent="RightPanel/VBox/EmoteBar"]
+custom_minimum_size = Vector2(80, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "💫 Spin"
+
+[node name="LaughBtn" type="Button" parent="RightPanel/VBox/EmoteBar"]
+custom_minimum_size = Vector2(80, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_pill")
+text = "🤣 Laugh"
+
 [node name="HSeparator" type="HSeparator" parent="RightPanel/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
@@ -278,3 +330,10 @@ text = "▶ PLAY NOW"
 [connection signal="pressed" from="RightPanel/VBox/LevelSelector/VolcanoButton" to="." method="_on_volcano_button_pressed"]
 [connection signal="pressed" from="RightPanel/VBox/LevelSelector/IceButton" to="." method="_on_ice_button_pressed"]
 [connection signal="pressed" from="RightPanel/VBox/PlayButton" to="." method="_on_play_button_pressed"]
+
+[connection signal="gui_input" from="CharacterStage" to="." method="_on_character_stage_gui_input"]
+[connection signal="pressed" from="RightPanel/VBox/EmoteBar/WaveBtn" to="." method="_on_wave_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/EmoteBar/DanceBtn" to="." method="_on_dance_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/EmoteBar/CheerBtn" to="." method="_on_cheer_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/EmoteBar/SpinBtn" to="." method="_on_spin_pressed"]
+[connection signal="pressed" from="RightPanel/VBox/EmoteBar/LaughBtn" to="." method="_on_laugh_pressed"]

@@ -12,10 +12,19 @@ const GM = preload("res://scripts/game_manager.gd")
 var can_jump: bool = true
 var is_stumbled: bool = false
 var stumble_timer: float = 0.0
-var target_z: float = -55.0 # Direction toward finish line
+var target_z: float = -32.0 # Direction toward finish line
 var lateral_target_x: float = 0.0
 var jump_cooldown: float = 0.0
 var spawn_point: Vector3
+
+var waypoints: Array[Vector3] = [
+	Vector3(0.0, -8.0, 20.0),
+	Vector3(-2.0, -10.0, 5.0),
+	Vector3(-7.0, -12.0, -10.0),
+	Vector3(-10.0, -13.0, -22.0),
+	Vector3(-13.0, -14.0, -32.0)
+]
+var current_wp_idx: int = 0
 
 @onready var visual_mesh: Node3D = $Visuals if has_node("Visuals") else $MeshInstance3D
 
@@ -47,9 +56,16 @@ func _physics_process(delta: float) -> void:
 	if not GM.is_game_active:
 		return
 
-	# Navigate toward Finish Line (Z: -55) with slight erratic human-like path
+	# Navigate along Meshy obstacle course waypoints toward finish line
 	var current_pos := global_position
-	var target := Vector3(lateral_target_x, current_pos.y, target_z)
+	var target_wp := waypoints[current_wp_idx] if current_wp_idx < waypoints.size() else Vector3(-13.0, -14.0, -32.0)
+	var target := Vector3(target_wp.x + lateral_target_x, current_pos.y, target_wp.z)
+	var dist_h := Vector2(current_pos.x - target.x, current_pos.z - target.z).length()
+	if dist_h < 4.0 and current_wp_idx < waypoints.size() - 1:
+		current_wp_idx += 1
+		lateral_target_x = randf_range(-1.8, 1.8)
+		target = Vector3(waypoints[current_wp_idx].x + lateral_target_x, current_pos.y, waypoints[current_wp_idx].z)
+
 	var move_dir := (target - current_pos)
 	move_dir.y = 0
 	move_dir = move_dir.normalized()
@@ -86,4 +102,6 @@ func respawn() -> void:
 	global_position = spawn_point + Vector3(randf_range(-1.5, 1.5), 0, randf_range(-1.0, 1.0))
 	velocity = Vector3.ZERO
 	is_stumbled = false
+	current_wp_idx = 0
+	lateral_target_x = randf_range(-2.0, 2.0)
 	visual_mesh.rotation.x = 0

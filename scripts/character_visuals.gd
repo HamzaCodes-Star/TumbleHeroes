@@ -53,6 +53,15 @@ var gold_mat: StandardMaterial3D
 
 var anim_time: float = 0.0
 var idle_phase: float = 0.0
+var current_emote: String = ""
+var emote_time: float = 0.0
+
+func play_emote(emote_name: String, duration: float = 2.4) -> void:
+	current_emote = emote_name.to_lower().strip_edges()
+	emote_time = duration
+
+func is_emoting() -> bool:
+	return emote_time > 0.0
 
 func _ready() -> void:
 	# Hide any legacy placeholder meshes from old scenes
@@ -506,6 +515,82 @@ func apply_skin(skin: int) -> void:
 func update_animation(delta: float, is_moving: bool, is_on_floor: bool, is_diving: bool, is_stumbled: bool) -> void:
 	if not torso_node or not left_leg or not right_leg or not left_arm or not right_arm:
 		return
+
+	if is_moving or is_diving or is_stumbled:
+		emote_time = 0.0
+
+	# --- 0. EXPRESSIVE LOBBY EMOTES ---
+	if emote_time > 0.0 and not is_moving and is_on_floor and not is_diving and not is_stumbled:
+		emote_time -= delta
+		anim_time += delta * 12.0
+		match current_emote:
+			"wave":
+				torso_node.position.y = 0.75 + absf(sin(anim_time * 0.4)) * 0.04
+				torso_node.rotation = Vector3.ZERO
+				head_node.rotation.z = deg_to_rad(15)
+				head_node.rotation.x = deg_to_rad(5)
+				right_arm.rotation.x = deg_to_rad(-145)
+				right_arm.rotation.z = deg_to_rad(20) + sin(anim_time) * 0.45
+				left_arm.rotation.x = deg_to_rad(-10)
+				left_arm.rotation.z = deg_to_rad(-18)
+				left_leg.rotation = Vector3.ZERO
+				right_leg.rotation = Vector3.ZERO
+				if right_ear: right_ear.rotation.z = sin(anim_time) * 0.2
+				return
+
+			"dance":
+				var dance_speed := anim_time * 0.8
+				torso_node.position.y = 0.75 + absf(sin(dance_speed * 2.0)) * 0.09
+				torso_node.rotation.z = sin(dance_speed) * 0.35
+				torso_node.rotation.y = sin(dance_speed * 0.5) * 0.25
+				left_arm.rotation.x = sin(dance_speed) * 1.4 - 0.8
+				right_arm.rotation.x = -sin(dance_speed) * 1.4 - 0.8
+				left_arm.rotation.z = deg_to_rad(-45)
+				right_arm.rotation.z = deg_to_rad(45)
+				left_leg.rotation.x = sin(dance_speed) * 0.4
+				right_leg.rotation.x = -sin(dance_speed) * 0.4
+				head_node.rotation.z = -torso_node.rotation.z * 0.8
+				if left_ear and right_ear:
+					left_ear.rotation.z = sin(dance_speed * 2.0) * 0.4
+					right_ear.rotation.z = -sin(dance_speed * 2.0) * 0.4
+				return
+
+			"cheer":
+				var cheer_bounce := absf(sin(anim_time * 0.7))
+				torso_node.position.y = 0.75 + cheer_bounce * 0.16
+				torso_node.scale = Vector3(0.95 + cheer_bounce * 0.05, 1.05 + cheer_bounce * 0.1, 0.95 + cheer_bounce * 0.05)
+				left_arm.rotation.x = deg_to_rad(-165) + sin(anim_time) * 0.2
+				right_arm.rotation.x = deg_to_rad(-165) - sin(anim_time) * 0.2
+				left_arm.rotation.z = deg_to_rad(-35) + sin(anim_time * 0.5) * 0.15
+				right_arm.rotation.z = deg_to_rad(35) - sin(anim_time * 0.5) * 0.15
+				head_node.rotation.x = deg_to_rad(-20)
+				left_leg.rotation = Vector3.ZERO
+				right_leg.rotation = Vector3.ZERO
+				return
+
+			"spin":
+				torso_node.position.y = 0.75 + absf(sin(anim_time * 0.5)) * 0.05
+				torso_node.rotation.y += delta * 12.0
+				left_arm.rotation.x = 0.0
+				right_arm.rotation.x = 0.0
+				left_arm.rotation.z = deg_to_rad(-80)
+				right_arm.rotation.z = deg_to_rad(80)
+				left_leg.rotation.x = sin(anim_time) * 0.2
+				right_leg.rotation.x = -sin(anim_time) * 0.2
+				return
+
+			"laugh":
+				var laugh_shake := sin(anim_time * 1.5)
+				torso_node.position.y = 0.75 + absf(laugh_shake) * 0.04
+				torso_node.rotation.x = deg_to_rad(15) + laugh_shake * 0.06
+				left_arm.rotation.x = deg_to_rad(-70)
+				left_arm.rotation.z = deg_to_rad(30)
+				right_arm.rotation.x = deg_to_rad(-70)
+				right_arm.rotation.z = deg_to_rad(-30)
+				head_node.rotation.x = deg_to_rad(10) + laugh_shake * 0.15
+				left_leg.rotation = Vector3.ZERO
+				right_leg.rotation = Vector3.ZERO
+				return
 
 	# --- 1. SUPERMAN BELLY-FLOP DIVE ---
 	if is_diving:
