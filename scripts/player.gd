@@ -18,6 +18,7 @@ var can_dive: bool = false
 var is_diving: bool = false
 var is_stumbled: bool = false
 var dive_timer: float = 0.0
+var stumble_duration_total: float = 1.0
 var spawn_point: Vector3 = Vector3.ZERO
 
 const GameSettings = preload("res://scripts/game_settings.gd")
@@ -121,16 +122,20 @@ func perform_dive() -> void:
 	visual_mesh.rotation.x = deg_to_rad(-85)
 
 func recover_from_dive() -> void:
+	var was_stumbled := is_stumbled
 	is_diving = false
 	is_stumbled = false
 	visual_mesh.rotation.x = 0
+	if was_stumbled and is_on_floor():
+		velocity.y = 3.8 # Cute snappy get-up pop!
+		_play_sfx(sfx_boing, -5.0)
 
 # Called when hit by spinning hammer, bumper, or falling obstacle
-func stumble(knockback: Vector3, duration: float = 1.0) -> void:
+func stumble(knockback: Vector3, duration: float = 1.2) -> void:
 	is_stumbled = true
+	stumble_duration_total = duration
 	dive_timer = duration
 	velocity = knockback
-	visual_mesh.rotation.x = deg_to_rad(-85)
 	_play_sfx(sfx_bonk, -2.0)
 
 # Respawn player at last checkpoint

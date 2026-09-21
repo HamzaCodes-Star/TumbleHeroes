@@ -12,6 +12,7 @@ const GM = preload("res://scripts/game_manager.gd")
 var can_jump: bool = true
 var is_stumbled: bool = false
 var stumble_timer: float = 0.0
+var stumble_duration_total: float = 1.0
 var target_z: float = -32.0 # Direction toward finish line
 var lateral_target_x: float = 0.0
 var jump_cooldown: float = 0.0
@@ -46,10 +47,16 @@ func _physics_process(delta: float) -> void:
 		if stumble_timer <= 0:
 			is_stumbled = false
 			visual_mesh.rotation.x = 0
+			if is_on_floor():
+				velocity.y = 3.5 # Bot recovery hop
 		if is_on_floor():
 			velocity.x = move_toward(velocity.x, 0, friction * delta)
 			velocity.z = move_toward(velocity.z, 0, friction * delta)
 		move_and_slide()
+		var h_speed := Vector2(velocity.x, velocity.z).length()
+		if has_node("Visuals"):
+			var prog := stumble_timer / stumble_duration_total if stumble_duration_total > 0.0 else 0.0
+			$Visuals.update_animation(delta, h_speed > 0.5, is_on_floor(), false, is_stumbled, prog, velocity)
 		return
 
 	# Only move if match has started
@@ -92,11 +99,11 @@ func _physics_process(delta: float) -> void:
 	if has_node("Visuals"):
 		$Visuals.update_animation(delta, is_moving, is_on_floor(), false, is_stumbled)
 
-func stumble(knockback: Vector3, duration: float = 1.0) -> void:
+func stumble(knockback: Vector3, duration: float = 1.2) -> void:
 	is_stumbled = true
+	stumble_duration_total = duration
 	stumble_timer = duration
 	velocity = knockback
-	visual_mesh.rotation.x = deg_to_rad(-85)
 
 func respawn() -> void:
 	global_position = spawn_point + Vector3(randf_range(-1.5, 1.5), 0, randf_range(-1.0, 1.0))
