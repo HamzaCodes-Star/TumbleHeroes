@@ -1,4 +1,4 @@
-extends CanvasLayer
+extends "res://scripts/touch_controls.gd"
 class_name GameHUD
 
 const GM = preload("res://scripts/game_manager.gd")
@@ -15,6 +15,7 @@ var bonk_sound: AudioStream = preload("res://assets/sounds/stumble_bonk.wav")
 var menu_button: Button
 
 func _ready() -> void:
+	super._ready()
 	result_panel.visible = false
 	if GM.instance:
 		GM.instance.qualification_updated.connect(_on_qualification_updated)
@@ -50,7 +51,8 @@ func _play_countdown() -> void:
 		await get_tree().create_timer(0.7).timeout
 	countdown_label.visible = false
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	super._process(delta)
 	if GM.is_game_active:
 		var mins := int(GM.time_left) / 60
 		var secs := int(GM.time_left) % 60

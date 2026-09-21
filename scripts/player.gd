@@ -22,18 +22,22 @@ var stumble_duration_total: float = 1.0
 var spawn_point: Vector3 = Vector3.ZERO
 
 const GameSettings = preload("res://scripts/game_settings.gd")
+const TouchControls = preload("res://scripts/touch_controls.gd")
 
 var sfx_boing: AudioStream = preload("res://assets/sounds/jump_boing.wav")
 var sfx_whoosh: AudioStream = preload("res://assets/sounds/dive_whoosh.wav")
 var sfx_bonk: AudioStream = preload("res://assets/sounds/stumble_bonk.wav")
 
 @onready var visual_mesh: Node3D = $Visuals if has_node("Visuals") else $MeshInstance3D
+@export var controls: TouchControls
 @onready var spring_arm: SpringArm3D = $SpringArm3D
 
 func _ready() -> void:
 	add_to_group("racers")
 	add_to_group("players")
 	spawn_point = global_position
+	if not controls:
+		controls = get_tree().root.find_child("MobileHUD", true, false) as TouchControls
 	if has_node("Visuals"):
 		$Visuals.apply_skin(GameSettings.selected_skin_index)
 
@@ -52,13 +56,17 @@ func _physics_process(delta: float) -> void:
 	else:
 		can_dive = true # Reset dive whenever player touches the floor
 
-	# 2. Handle Jump & Dive Inputs
-	if Input.is_action_just_pressed("jump") and not is_stumbled:
+	# 2. Handle Jump & Dive Inputs (TouchControls or Keyboard)
+	var touch_jump: bool = controls.jump_pressed if controls else false
+	var key_jump := Input.is_action_just_pressed("jump")
+	if (touch_jump or key_jump) and not is_stumbled:
 		if is_on_floor():
 			velocity.y = jump_velocity
 			_play_sfx(sfx_boing, -3.0)
+			if controls: controls.jump_pressed = false
 		elif can_dive and not is_diving:
 			perform_dive()
+			if controls: controls.jump_pressed = false
 
 	# 3. Handle Diving / Sliding State
 	if is_diving or is_stumbled:
@@ -79,11 +87,14 @@ func _physics_process(delta: float) -> void:
 	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
 	var is_moving := horizontal_speed > 0.5 and is_on_floor()
 	if has_node("Visuals"):
-		$Visuals.update_animation(delta, is_moving, is_on_floor(), is_diving, is_stumbled)
+		var stumble_prog := dive_timer / stumble_duration_total if stumble_duration_total > 0.0 else 0.0
+		$Visuals.update_animation(delta, is_moving, is_on_floor(), is_diving, is_stumbled, stumble_prog, velocity)
 
 func handle_locomotion(delta: float) -> void:
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	
+	var touch_input: Vector2 = controls.move_vector if controls else Vector2.ZERO
+	var key_input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	var input_dir: Vector2 = touch_input if touch_input.length() > 0.01 else key_input
+
 	# Direction relative to camera view
 	var cam_basis := spring_arm.global_transform.basis if spring_arm else global_transform.basis
 	var forward := -cam_basis.z
@@ -93,15 +104,16 @@ func handle_locomotion(delta: float) -> void:
 	forward = forward.normalized()
 	right = right.normalized()
 
-	var move_direction := (right * input_dir.x + forward * -input_dir.y).normalized()
+	var move_direction := (forward * -input_dir.y + right * input_dir.x)
 
-	if move_direction != Vector3.ZERO:
+	if move_direction.length() > 0.01:
+		move_direction = move_direction.normalized()
 		velocity.x = move_toward(velocity.x, move_direction.x * speed, acceleration * delta)
 		velocity.z = move_toward(velocity.z, move_direction.z * speed, acceleration * delta)
 		
 		# Rotate character mesh smoothly towards movement direction
 		var target_angle := atan2(move_direction.x, move_direction.z)
-		visual_mesh.rotation.y = lerp_angle(visual_mesh.rotation.y, target_angle, 15.0 * delta)
+		visual_mesh.rotation.y = lerp_angle(visual_mesh.rotation.y, target_angle, 14.0 * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0, friction * delta)
 		velocity.z = move_toward(velocity.z, 0, friction * delta)
