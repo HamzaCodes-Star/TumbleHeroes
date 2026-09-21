@@ -22,22 +22,21 @@ var stumble_duration_total: float = 1.0
 var spawn_point: Vector3 = Vector3.ZERO
 
 const GameSettings = preload("res://scripts/game_settings.gd")
-const TouchControls = preload("res://scripts/touch_controls.gd")
+const GM = preload("res://scripts/game_manager.gd")
 
 var sfx_boing: AudioStream = preload("res://assets/sounds/jump_boing.wav")
 var sfx_whoosh: AudioStream = preload("res://assets/sounds/dive_whoosh.wav")
 var sfx_bonk: AudioStream = preload("res://assets/sounds/stumble_bonk.wav")
 
 @onready var visual_mesh: Node3D = $Visuals if has_node("Visuals") else $MeshInstance3D
-@export var controls: TouchControls
+var controls: CanvasLayer
 @onready var spring_arm: SpringArm3D = $SpringArm3D
 
 func _ready() -> void:
 	add_to_group("racers")
 	add_to_group("players")
 	spawn_point = global_position
-	if not controls:
-		controls = get_tree().root.find_child("MobileHUD", true, false) as TouchControls
+	controls = get_tree().root.find_child("MobileHUD", true, false) as CanvasLayer
 	if has_node("Visuals"):
 		$Visuals.apply_skin(GameSettings.selected_skin_index)
 
@@ -54,19 +53,19 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
-		can_dive = true # Reset dive whenever player touches the floor
+		can_dive = true
 
-	# 2. Handle Jump & Dive Inputs (TouchControls or Keyboard)
-	var touch_jump: bool = controls.jump_pressed if controls else false
+	# 2. Handle Jump & Dive Inputs
+	var touch_jump: bool = controls.get("jump_pressed") if (controls and "jump_pressed" in controls) else false
 	var key_jump := Input.is_action_just_pressed("jump")
 	if (touch_jump or key_jump) and not is_stumbled:
 		if is_on_floor():
 			velocity.y = jump_velocity
 			_play_sfx(sfx_boing, -3.0)
-			if controls: controls.jump_pressed = false
+			if controls: controls.set("jump_pressed", false)
 		elif can_dive and not is_diving:
 			perform_dive()
-			if controls: controls.jump_pressed = false
+			if controls: controls.set("jump_pressed", false)
 
 	# 3. Handle Diving / Sliding State
 	if is_diving or is_stumbled:
@@ -91,9 +90,17 @@ func _physics_process(delta: float) -> void:
 		$Visuals.update_animation(delta, is_moving, is_on_floor(), is_diving, is_stumbled, stumble_prog, velocity)
 
 func handle_locomotion(delta: float) -> void:
-	var touch_input: Vector2 = controls.move_vector if controls else Vector2.ZERO
+	# Check for active controls
+	if not controls:
+		controls = get_tree().root.find_child("MobileHUD", true, false) as CanvasLayer
+
+	var touch_input: Vector2 = controls.get("move_vector") if (controls and "move_vector" in controls) else Vector2.ZERO
 	var key_input := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var input_dir: Vector2 = touch_input if touch_input.length() > 0.01 else key_input
+
+	# If match has not started yet, do not allow moving forward, but keep character grounded
+	if not GM.is_game_active:
+		input_dir = Vector2.ZERO
 
 	# Direction relative to camera view
 	var cam_basis := spring_arm.global_transform.basis if spring_arm else global_transform.basis
@@ -124,13 +131,11 @@ func perform_dive() -> void:
 	dive_timer = dive_duration
 	_play_sfx(sfx_whoosh, -3.0)
 
-	# Dive forward in mesh facing direction
 	var forward := Vector3.FORWARD.rotated(Vector3.UP, visual_mesh.rotation.y)
 	velocity.x = forward.x * dive_forward_force
 	velocity.z = forward.z * dive_forward_force
 	velocity.y = dive_upward_force
 
-	# Tilt mesh flat horizontally (belly flop slide)
 	visual_mesh.rotation.x = deg_to_rad(-85)
 
 func recover_from_dive() -> void:
@@ -139,10 +144,9 @@ func recover_from_dive() -> void:
 	is_stumbled = false
 	visual_mesh.rotation.x = 0
 	if was_stumbled and is_on_floor():
-		velocity.y = 3.8 # Cute snappy get-up pop!
+		velocity.y = 3.8
 		_play_sfx(sfx_boing, -5.0)
 
-# Called when hit by spinning hammer, bumper, or falling obstacle
 func stumble(knockback: Vector3, duration: float = 1.2) -> void:
 	is_stumbled = true
 	stumble_duration_total = duration
@@ -150,13 +154,11 @@ func stumble(knockback: Vector3, duration: float = 1.2) -> void:
 	velocity = knockback
 	_play_sfx(sfx_bonk, -2.0)
 
-# Respawn player at last checkpoint
 func respawn() -> void:
 	global_position = spawn_point
 	velocity = Vector3.ZERO
 	recover_from_dive()
 
-# Mobile touch button trigger
 func _on_jump_button_down() -> void:
 	if not is_stumbled:
 		if is_on_floor():
@@ -164,4 +166,3 @@ func _on_jump_button_down() -> void:
 			_play_sfx(sfx_boing, -3.0)
 		elif can_dive and not is_diving:
 			perform_dive()
-
