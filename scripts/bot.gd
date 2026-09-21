@@ -82,7 +82,7 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, move_dir.z * speed, acceleration * delta)
 
 	if move_dir != Vector3.ZERO:
-		visual_mesh.rotation.y = lerp_angle(visual_mesh.rotation.y, atan2(move_dir.x, move_dir.z), 10.0 * delta)
+		visual_mesh.rotation.y = lerp_angle(visual_mesh.rotation.y, atan2(-move_dir.x, -move_dir.z), 10.0 * delta)
 
 	# Random Bot Jumps
 	jump_cooldown -= delta

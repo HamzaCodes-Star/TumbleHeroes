@@ -641,63 +641,73 @@ func update_animation(delta: float, is_moving: bool, is_on_floor: bool, is_divin
 
 	# --- 2. HILARIOUS 3D TUMBLING ROLL & DIZZY STARS RAGDOLL ---
 	if is_stumbled:
-		anim_time += delta * 18.0
+		anim_time += delta * 22.0
 
 		# Phase A: Full 3D Cartwheel / Somersault Roll while sliding with momentum
-		if stumble_progress > 0.35:
+		if stumble_progress > 0.30:
 			if dizzy_stars_node: dizzy_stars_node.visible = false
-			# Roll end-over-end along knockback trajectory
-			var roll_speed := maxf(stumble_velocity.length() * 1.8, 14.0)
+			# 3D tumbling somersaults along all axes
+			var roll_speed := maxf(stumble_velocity.length() * 2.5, 18.0)
 			torso_node.rotation.x += delta * roll_speed
-			torso_node.rotation.z += delta * (stumble_velocity.x * 1.5)
+			torso_node.rotation.z += delta * (stumble_velocity.x * 2.2 + 8.0)
+			torso_node.rotation.y += delta * 6.0
 
-			# Bouncy squish as body bounces along ground
-			var bounce_t := absf(sin(anim_time * 2.2))
-			torso_node.position.y = 0.42 + bounce_t * 0.18
-			torso_node.scale = Vector3(1.15 - bounce_t * 0.2, 0.8 + bounce_t * 0.35, 1.15 - bounce_t * 0.2)
+			# Bouncy squash & stretch as body bounces along ground
+			var bounce_t := absf(sin(anim_time * 2.6))
+			torso_node.position.y = 0.38 + bounce_t * 0.28
+			torso_node.scale = Vector3(1.22 - bounce_t * 0.35, 0.72 + bounce_t * 0.5, 1.22 - bounce_t * 0.35)
 
-			# Flailing ragdoll limbs
-			left_arm.rotation.x = sin(anim_time * 1.8) * 2.6
-			right_arm.rotation.x = -sin(anim_time * 1.8) * 2.6
-			left_leg.rotation.x = cos(anim_time * 1.8) * 2.0
-			right_leg.rotation.x = -cos(anim_time * 1.8) * 2.0
-			left_arm.rotation.z = deg_to_rad(-45) + sin(anim_time) * 0.6
-			right_arm.rotation.z = deg_to_rad(45) - sin(anim_time) * 0.6
+			# Loose, floppy ragdoll limbs flailing wildly
+			left_arm.rotation.x = sin(anim_time * 2.4) * 3.1
+			right_arm.rotation.x = -sin(anim_time * 2.4) * 3.1
+			left_leg.rotation.x = cos(anim_time * 2.4) * 2.6
+			right_leg.rotation.x = -cos(anim_time * 2.4) * 2.6
+			left_arm.rotation.z = deg_to_rad(-60) + sin(anim_time * 1.6) * 0.9
+			right_arm.rotation.z = deg_to_rad(60) - sin(anim_time * 1.6) * 0.9
+			
+			# Loose head flop
+			head_node.rotation.x = sin(anim_time * 3.2) * 0.7
+			head_node.rotation.z = cos(anim_time * 2.8) * 0.6
 			return
 
 		# Phase B: Dazed Sitting with Orbiting Dizzy Stars before popping back up
 		else:
 			if dizzy_stars_node:
 				dizzy_stars_node.visible = true
-				dizzy_stars_node.rotation.y += delta * 7.5
-				dizzy_stars_node.position.y = 0.48 + sin(anim_time * 3.0) * 0.04
+				dizzy_stars_node.rotation.y += delta * 9.5
+				dizzy_stars_node.position.y = 0.52 + sin(anim_time * 3.5) * 0.06
 
 			# Stumbler sits dazed leaning back on floor
-			torso_node.rotation.x = lerp_angle(torso_node.rotation.x, deg_to_rad(-25), 14.0 * delta)
+			torso_node.rotation.x = lerp_angle(torso_node.rotation.x, deg_to_rad(-28), 14.0 * delta)
 			torso_node.rotation.z = lerp_angle(torso_node.rotation.z, 0.0, 14.0 * delta)
-			torso_node.position.y = 0.38
-			torso_node.scale = Vector3(1.08, 0.92, 1.08)
+			torso_node.rotation.y = lerp_angle(torso_node.rotation.y, 0.0, 14.0 * delta)
+			torso_node.position.y = 0.35
+			torso_node.scale = Vector3(1.12, 0.88, 1.12)
 
 			# Paws propped on floor behind
-			left_arm.rotation.x = deg_to_rad(40)
-			right_arm.rotation.x = deg_to_rad(40)
-			left_arm.rotation.z = deg_to_rad(-25)
-			right_arm.rotation.z = deg_to_rad(25)
-			left_leg.rotation.x = deg_to_rad(-15)
-			right_leg.rotation.x = deg_to_rad(-15)
+			left_arm.rotation.x = deg_to_rad(45)
+			right_arm.rotation.x = deg_to_rad(45)
+			left_arm.rotation.z = deg_to_rad(-28)
+			right_arm.rotation.z = deg_to_rad(28)
+			left_leg.rotation.x = deg_to_rad(-18)
+			right_leg.rotation.x = deg_to_rad(-18)
 
 			# Groovy groggy head wobble
-			head_node.rotation.z = sin(anim_time * 4.5) * 0.22
-			head_node.rotation.x = deg_to_rad(-10) + sin(anim_time * 2.0) * 0.12
+			head_node.rotation.z = sin(anim_time * 5.2) * 0.32
+			head_node.rotation.x = deg_to_rad(-12) + sin(anim_time * 2.5) * 0.2
 			return
 
 	# Hide dizzy stars when recovered and active
 	if dizzy_stars_node:
 		dizzy_stars_node.visible = false
 
-	# Reset torso pose
+	# Reset torso and head pose
 	torso_node.rotation.x = 0.0
 	torso_node.rotation.y = 0.0
+	torso_node.rotation.z = 0.0
+	head_node.rotation.x = 0.0
+	head_node.rotation.y = 0.0
+	head_node.rotation.z = 0.0
 	torso_node.position.y = 0.75
 
 	# --- 3. IN-AIR / JUMPING FLAP PANIC ---

@@ -51,8 +51,7 @@ func _play_countdown() -> void:
 		await get_tree().create_timer(0.7).timeout
 	countdown_label.visible = false
 
-func _process(delta: float) -> void:
-	super._process(delta)
+func _process(_delta: float) -> void:
 	if GM.is_game_active:
 		var mins := int(GM.time_left) / 60
 		var secs := int(GM.time_left) % 60

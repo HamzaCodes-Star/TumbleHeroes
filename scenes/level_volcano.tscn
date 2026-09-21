@@ -9,6 +9,9 @@
 [ext_resource type="Script" path="res://scripts/finish_line.gd" id="7_finish"]
 [ext_resource type="PackedScene" path="res://assets/meshy_level/Meshy_AI_Level_for_mobile_game_0921081155_texture.fbx" id="8_meshy"]
 [ext_resource type="Script" path="res://scripts/meshy_level_setup.gd" id="9_meshysetup"]
+[ext_resource type="Script" path="res://scripts/spinner.gd" id="10_spinner"]
+[ext_resource type="Script" path="res://scripts/pendulum.gd" id="11_pendulum"]
+[ext_resource type="Script" path="res://scripts/bouncy_pad.gd" id="12_bounce"]
 
 [sub_resource type="ProceduralSkyMaterial" id="Sky_Volcano"]
 sky_top_color = Color(0.18, 0.05, 0.05, 1)
@@ -76,6 +79,37 @@ corner_radius_bottom_left = 32
 shadow_color = Color(0.1, 0.6, 0.9, 0.4)
 shadow_size = 6
 
+[sub_resource type="StandardMaterial3D" id="Mat_SpinnerHazard"]
+albedo_color = Color(0.98, 0.22, 0.5, 1)
+roughness = 0.25
+emission_enabled = true
+emission = Color(0.8, 0.1, 0.35, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_spinner_bar"]
+material = SubResource("Mat_SpinnerHazard")
+size = Vector3(8, 0.7, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_spinner_col"]
+size = Vector3(8, 0.7, 0.7)
+
+[sub_resource type="StandardMaterial3D" id="Mat_BouncePadGreen"]
+albedo_color = Color(0.2, 0.95, 0.45, 1)
+roughness = 0.2
+emission_enabled = true
+emission = Color(0.1, 0.8, 0.3, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pad"]
+material = SubResource("Mat_BouncePadGreen")
+top_radius = 1.8
+bottom_radius = 2.0
+height = 0.4
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_pad"]
+height = 0.6
+radius = 2.0
+
 [node name="Main" type="Node3D"]
 
 [node name="GameManager" type="Node" parent="."]
@@ -137,6 +171,95 @@ script = ExtResource("6_kill")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="KillPlane"]
 shape = SubResource("BoxShape3D_kill")
+
+[node name="Obstacles" type="Node3D" parent="."]
+
+[node name="Spinner1" type="AnimatableBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -7.8, 18)
+sync_to_physics = false
+script = ExtResource("10_spinner")
+rotation_speed = 2.4
+knockback_power = 18.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/Spinner1"]
+mesh = SubResource("BoxMesh_spinner_bar")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Spinner1"]
+shape = SubResource("BoxShape3D_spinner_col")
+
+[node name="Area3D" type="Area3D" parent="Obstacles/Spinner1"]
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Spinner1/Area3D"]
+shape = SubResource("BoxShape3D_spinner_col")
+
+[node name="BouncyPad" type="Area3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8.35, 11)
+collision_mask = 2
+script = ExtResource("12_bounce")
+bounce_force = 18.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/BouncyPad"]
+mesh = SubResource("CylinderMesh_pad")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/BouncyPad"]
+shape = SubResource("CylinderShape3D_pad")
+
+[node name="Spinner2" type="AnimatableBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5, -9.5, -8)
+sync_to_physics = false
+script = ExtResource("10_spinner")
+rotation_speed = -3.0
+knockback_power = 20.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/Spinner2"]
+mesh = SubResource("BoxMesh_spinner_bar")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Spinner2"]
+shape = SubResource("BoxShape3D_spinner_col")
+
+[node name="Area3D" type="Area3D" parent="Obstacles/Spinner2"]
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Spinner2/Area3D"]
+shape = SubResource("BoxShape3D_spinner_col")
+
+[node name="Spinner3" type="AnimatableBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, -9.5, -8)
+sync_to_physics = false
+script = ExtResource("10_spinner")
+rotation_speed = 3.0
+knockback_power = 20.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/Spinner3"]
+mesh = SubResource("BoxMesh_spinner_bar")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Spinner3"]
+shape = SubResource("BoxShape3D_spinner_col")
+
+[node name="Area3D" type="Area3D" parent="Obstacles/Spinner3"]
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Spinner3/Area3D"]
+shape = SubResource("BoxShape3D_spinner_col")
+
+[node name="Pendulum1" type="AnimatableBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, -5.5, -22)
+script = ExtResource("11_pendulum")
+swing_speed = 3.2
+max_angle_deg = 60.0
+knockback_power = 22.0
+
+[node name="HammerArm" type="MeshInstance3D" parent="Obstacles/Pendulum1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+mesh = SubResource("BoxMesh_spinner_bar")
+
+[node name="Area3D" type="Area3D" parent="Obstacles/Pendulum1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Pendulum1/Area3D"]
+shape = SubResource("BoxShape3D_spinner_col")
 
 [node name="MobileHUD" type="CanvasLayer" parent="."]
 script = ExtResource("4_hud")
