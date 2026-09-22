@@ -149,6 +149,11 @@ func _physics_process(delta: float) -> void:
 		var stumble_prog := dive_timer / stumble_duration_total if stumble_duration_total > 0.0 else 0.0
 		$Visuals.update_animation(delta, is_moving, is_on_floor(), is_diving, is_stumbled, stumble_prog, velocity)
 
+	# 9. Falling Elimination Void Check (Game Over on falling off course)
+	if global_position.y < -15.0:
+		if GM.instance and GM.is_game_active:
+			GM.instance.end_round(false)
+
 func handle_camera_look(delta: float) -> void:
 	if not spring_arm:
 		return
@@ -229,9 +234,12 @@ func stumble(knockback: Vector3, duration: float = 1.2) -> void:
 	_play_sfx(sfx_bonk, -2.0)
 
 func respawn() -> void:
-	global_position = spawn_point
-	velocity = Vector3.ZERO
-	recover_from_dive()
+	if GM.instance and GM.is_game_active:
+		GM.instance.end_round(false)
+	else:
+		global_position = spawn_point
+		velocity = Vector3.ZERO
+		recover_from_dive()
 
 func _on_jump_button_down() -> void:
 	if not is_stumbled:

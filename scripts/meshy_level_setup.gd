@@ -38,15 +38,24 @@ func _ready() -> void:
 		sb.add_child(col_shape)
 		add_child(sb)
 		
-		# 2. Enhance PBR material with roughness & metallic maps if available
-		var mat: StandardMaterial3D = mi.mesh.surface_get_material(0)
-		if mat:
-			var rough_path = "res://assets/meshy_level/Meshy_AI_Level_for_mobile_game_0921081155_texture_roughness.png"
-			var norm_path = "res://assets/meshy_level/Meshy_AI_Level_for_mobile_game_0921081155_texture_normal.png"
-			if ResourceLoader.exists(rough_path):
-				mat.roughness_texture = load(rough_path)
-			if ResourceLoader.exists(norm_path):
-				mat.normal_enabled = true
-				mat.normal_texture = load(norm_path)
-			mat.roughness = 0.55
-			mat.metallic = 0.15
+		# 2. Enhance PBR material with anisotropic filtering, crisp mipmaps & metallic/roughness maps
+		for s in range(mi.mesh.get_surface_count()):
+			var mat: StandardMaterial3D = mi.mesh.surface_get_material(s)
+			if not mat:
+				mat = mi.get_active_material(s) as StandardMaterial3D
+			if mat:
+				# Force Anisotropic Filtering with Mipmaps for maximum clarity at all angles & distances
+				mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+				var rough_path = "res://assets/meshy_level/Meshy_AI_Level_for_mobile_game_0921081155_texture_roughness.png"
+				var norm_path = "res://assets/meshy_level/Meshy_AI_Level_for_mobile_game_0921081155_texture_normal.png"
+				var met_path = "res://assets/meshy_level/Meshy_AI_Level_for_mobile_game_0921081155_texture_metallic.png"
+				if ResourceLoader.exists(rough_path):
+					mat.roughness_texture = load(rough_path)
+				if ResourceLoader.exists(norm_path):
+					mat.normal_enabled = true
+					mat.normal_texture = load(norm_path)
+				if ResourceLoader.exists(met_path):
+					mat.metallic_texture = load(met_path)
+				mat.roughness = 0.45
+				mat.metallic = 0.1
+				mat.metallic_specular = 0.5

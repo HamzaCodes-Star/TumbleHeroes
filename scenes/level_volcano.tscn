@@ -25,9 +25,11 @@ sky_material = SubResource("Sky_Volcano")
 [sub_resource type="Environment" id="Env_Volcano"]
 background_mode = 2
 sky = SubResource("Sky_WorldVolcano")
-ambient_light_source = 3
-ambient_light_color = Color(0.9, 0.4, 0.2, 1)
-tonemap_mode = 2
+ambient_light_source = 2
+ambient_light_energy = 0.85
+ambient_light_sky_contribution = 0.7
+tonemap_mode = 3
+tonemap_exposure = 1.05
 glow_enabled = true
 glow_intensity = 0.4
 
@@ -167,6 +169,7 @@ mesh = SubResource("BoxMesh_arch_top")
 
 [node name="KillPlane" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -22, 0)
+collision_mask = 3
 script = ExtResource("6_kill")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="KillPlane"]
